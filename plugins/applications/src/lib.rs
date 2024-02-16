@@ -11,6 +11,7 @@ pub struct Config {
     max_entries: usize,
     terminal: Option<String>,
     history_size: usize,     
+    show_history_on_launch: bool,
 }
 
 impl Default for Config {
@@ -20,6 +21,7 @@ impl Default for Config {
             max_entries: 5,
             terminal: None,
             history_size: 50,
+            show_history_on_launch: false,
         }
     }
 }
@@ -137,7 +139,13 @@ pub fn get_matches(input: RString, state: &State) -> RVec<Match> {
             }).unwrap_or(0);
 
             if app_score + keyword_score == 0 {
-                return None;
+
+                if state.config.show_history_on_launch == true && input.len() == 0 {
+                    return Some((entry, *id, history_score));
+                }
+                else {
+                    return None;
+                }
             }
 
             let mut score = (app_score * 25 + keyword_score + history_score) - entry.offset;
